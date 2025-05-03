@@ -8,24 +8,44 @@ on:
     branches:
       - master
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.13.3'
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Run Robot Framework tests
-      run: |
-        robot test/elonmusk.robot
+      jobs:
+        test:
+          runs-on: ubuntu-latest
+      
+          steps:
+            # Checkout repository code
+            - name: Checkout code
+              uses: actions/checkout@v2
+              
+            # Setup Python
+            - name: Set up Python
+              uses: actions/setup-python@v2
+              with:
+                python-version: '3.13.3'
+      
+            # Install dependencies
+            - name: Install dependencies
+              run: |
+                python -m pip install --upgrade pip
+                pip install -r requirements.txt
+      
+            # Install Chrome and chromedriver (untuk Selenium)
+            - name: Install Chrome and chromedriver
+              run: |
+                sudo apt-get update
+                sudo apt-get install -y wget unzip
+                wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+                sudo dpkg -i google-chrome-stable_current_amd64.deb
+                sudo apt --fix-broken install -y
+                wget https://chromedriver.storage.googleapis.com/114.0.5735.90/chromedriver_linux64.zip
+                unzip chromedriver_linux64.zip
+                sudo mv chromedriver /usr/local/bin/
+                sudo chmod +x /usr/local/bin/chromedriver
+      
+            # Run Robot Framework tests with Chrome options
+            - name: Run Robot Framework Tests
+              run: |
+                export DISPLAY=:99
+                google-chrome-stable --no-sandbox --disable-dev-shm-usage --headless --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-user-data &
+                robot test/elonmusk.robot
+      
