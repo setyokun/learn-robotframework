@@ -3,7 +3,7 @@ Library    SeleniumLibrary
 
 *** Variables ***
 ${URL}       https://www.google.com
-${BROWSER}   headlesschrome
+${BROWSER}   %{ROBOT_BROWSER}
 ${SEARCH_TERM}   Elon Musk
 
 *** Test Cases ***
