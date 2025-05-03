@@ -32,7 +32,7 @@ jobs:
       - name: Install Chrome and chromedriver
         run: |
           sudo apt-get update
-          sudo apt-get install -y wget unzip
+          sudo apt-get install -y wget unzip xvfb
           wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
           sudo dpkg -i google-chrome-stable_current_amd64.deb
           sudo apt --fix-broken install -y
@@ -44,6 +44,6 @@ jobs:
       # Run Robot Framework tests with Chrome options
       - name: Run Robot Framework Tests
         run: |
+          Xvfb :99 -screen 0 1920x1080x24 &  # virtual display
           export DISPLAY=:99
-          google-chrome-stable --no-sandbox --disable-dev-shm-usage --headless --remote-debugging-port=9222 --user-data-dir=/tmp/chrome-user-data &
           robot test/elonmusk.robot
