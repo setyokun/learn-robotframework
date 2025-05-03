@@ -7,6 +7,7 @@ on:
   pull_request:
     branches:
       - master
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -28,20 +29,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Install Chrome and chromedriver (untuk Selenium)
-      - name: Install Chrome and ChromeDriver (v136)
+      # Install Chrome & Chromedriver (auto compatible)
+      - name: Install Chrome and Chromedriver
         run: |
           sudo apt-get update
           sudo apt-get install -y wget unzip xvfb
           wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
           sudo dpkg -i google-chrome-stable_current_amd64.deb || sudo apt-get -f install -y
-          wget https://edgedl.me.gvt1.com/edgedl/chrome/chromedriver/136.0.7103.49/chromedriver_linux64.zip
-          unzip chromedriver_linux64.zip
-          sudo mv chromedriver /usr/local/bin/
-          sudo chmod +x /usr/local/bin/chromedriver
-        
-      # Run Robot Framework tests with Chrome options
-      - name: Run Robot Framework tests
+          sudo apt-get install -y chromium-chromedriver
+          sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/local/bin/chromedriver || true
+
+      # Run Robot Framework tests (headless)
+      - name: Run Robot Framework Tests
         run: |
           Xvfb :99 -screen 0 1920x1080x24 &
           export DISPLAY=:99
