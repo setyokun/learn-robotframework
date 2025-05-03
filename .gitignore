@@ -1,0 +1,16 @@
+# Python virtual environment
+venv/
+__pycache__/
+
+# Robot Framework output files
+output.xml
+log.html
+report.html
+
+# IDE/editor files
+.vscode/
+.idea/
+
+# Mac/Linux/Windows OS files
+.DS_Store
+Thumbs.db
