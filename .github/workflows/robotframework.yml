@@ -61,7 +61,7 @@ jobs:
         robot --outputdir results --loglevel DEBUG tests/
 
     - name: Upload Robot Framework Results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v3.1.2
       with:
         name: robot-results
         path: results/
