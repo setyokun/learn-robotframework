@@ -59,9 +59,3 @@ jobs:
       run: |
         export ROBOT_BROWSER_OPTS="--no-sandbox --disable-dev-shm-usage --disable-gpu --window-size=1920,1080"
         robot --outputdir results --loglevel DEBUG tests/
-
-    - name: Upload Robot Framework Results
-      uses: actions/upload-artifact@v3.1.2
-      with:
-        name: robot-results
-        path: results/
