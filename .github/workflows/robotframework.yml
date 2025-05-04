@@ -21,32 +21,41 @@ jobs:
 
     - name: Install dependencies
       run: |
-          python -m pip install --upgrade pip
-          pip install robotframework selenium robotframework-seleniumlibrary
-      
-          # Install Google Chrome
-          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          sudo apt-get update
-          sudo apt-get install -y ./google-chrome-stable_current_amd64.deb || sudo apt-get --fix-broken install -y
-      
-          # Install ChromeDriver matching Chrome version
-          CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+' | head -1)
-          DRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION")
-          wget -q -O chromedriver.zip "https://chromedriver.storage.googleapis.com/$DRIVER_VERSION/chromedriver_linux64.zip"
-          unzip chromedriver.zip
-          sudo mv chromedriver /usr/bin/chromedriver
-          sudo chmod +x /usr/bin/chromedriver
-      
+        python -m pip install --upgrade pip
+        pip install robotframework selenium robotframework-seleniumlibrary
+
+    - name: Install Google Chrome
+      run: |
+        wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+        sudo apt-get update
+        sudo apt-get install -y ./google-chrome-stable_current_amd64.deb || sudo apt-get --fix-broken install -y
+
+    - name: Install ChromeDriver matching Chrome version
+      run: |
+        sudo apt-get install -y jq
+
+        CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+\.\d+')
+        echo "Detected Chrome version: $CHROME_VERSION"
+
+        DRIVER_URL=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json" \
+          | jq -r --arg ver "$CHROME_VERSION" '.channels.Stable.downloads.chromedriver[] | select(.platform == "linux64") | .url')
+
+        echo "Downloading ChromeDriver from: $DRIVER_URL"
+        wget -q -O chromedriver.zip "$DRIVER_URL"
+        unzip chromedriver.zip
+        sudo mv chromedriver-linux64/chromedriver /usr/bin/chromedriver
+        sudo chmod +x /usr/bin/chromedriver
+
     - name: Debug Information
       run: |
-          google-chrome --version
-          chromedriver --version
-          pip freeze
-          ls -la tests/
-      
+        google-chrome --version
+        chromedriver --version
+        pip freeze
+        ls -la tests/
+
     - name: Run Robot Framework Tests (headless)
       env:
-          ROBOT_BROWSER: headlesschrome
+        ROBOT_BROWSER: headlesschrome
       run: |
-          export ROBOT_BROWSER_OPTS="--no-sandbox --disable-dev-shm-usage --disable-gpu --window-size=1920,1080"
-          robot --outputdir results --loglevel DEBUG tests/
+        export ROBOT_BROWSER_OPTS="--no-sandbox --disable-dev-shm-usage --disable-gpu --window-size=1920,1080"
+        robot --outputdir results --loglevel DEBUG tests/
